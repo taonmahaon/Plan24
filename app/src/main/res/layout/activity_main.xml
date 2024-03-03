@@ -32,4 +32,19 @@
         android:layout_alignParentStart="true"
         android:text="Pause" />
 
+    <Button
+        android:id="@+id/forceEndOfDayButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Force End of Day"
+        android:layout_below="@id/pauseButton"
+        android:layout_marginTop="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dataRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/forceEndOfDayButton"
+        android:layout_marginTop="16dp"/>
+
 </RelativeLayout>
