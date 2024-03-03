@@ -6,9 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.widget.Button
 import android.widget.Chronometer
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 private const val PREF_NAME = "MyPrefs"
@@ -20,10 +24,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chronometer: Chronometer
     private lateinit var startButton: Button
     private lateinit var pauseButton: Button
+    private lateinit var forceEndOfDayButton: Button
+    private lateinit var dataRecyclerView: RecyclerView
+    private lateinit var dataAdapter: TimeDataAdapter
+    private lateinit var data: Map<String, Long>
 
     private var isRunning = false
     private var elapsedTime: Long = 0
-    private var goalTime: Long = 4 * 60 * 60 * 1000 // 4 hours in milliseconds
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,10 +39,9 @@ class MainActivity : AppCompatActivity() {
         chronometer = findViewById(R.id.chronometer)
         startButton = findViewById(R.id.startButton)
         pauseButton = findViewById(R.id.pauseButton)
+        forceEndOfDayButton = findViewById(R.id.forceEndOfDayButton)
+        dataRecyclerView = findViewById(R.id.dataRecyclerView)
 
-        val savedTime = getSavedTime()
-        chronometer.base = SystemClock.elapsedRealtime() - savedTime
-        elapsedTime = savedTime
         startButton.setOnClickListener {
             startChronometer()
         }
@@ -44,10 +50,29 @@ class MainActivity : AppCompatActivity() {
             pauseChronometer()
         }
 
-        // Schedule the end of day task
-        scheduleEndOfDayTask()
 
-        // Start autosave while the app is running
+        forceEndOfDayButton.setOnClickListener {
+            forceEndOfDay()
+            val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+            val allEntries: Map<String, *> = sharedPreferences.all
+            data = allEntries as Map<String, Long>
+            dataAdapter = TimeDataAdapter(this, data)
+            dataRecyclerView.layoutManager = LinearLayoutManager(this)
+            dataRecyclerView.adapter = dataAdapter
+        }
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val allEntries: Map<String, *> = sharedPreferences.all
+
+        for ((key, value) in allEntries) {
+            Log.d("SharedPreferences", "$key: $value" + "look Luke")
+        }
+
+        data = allEntries as Map<String, Long>
+        dataAdapter = TimeDataAdapter(this, data)
+        dataRecyclerView.layoutManager = LinearLayoutManager(this)
+        dataRecyclerView.adapter = dataAdapter
+
+        scheduleEndOfDayTask()
         startAutosave()
     }
 
@@ -65,20 +90,20 @@ class MainActivity : AppCompatActivity() {
             elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
             isRunning = false
             saveTime(elapsedTime) // Save the elapsed time
-            checkGoalAchievement(elapsedTime)
+//            checkGoalAchievement(elapsedTime)
         }
     }
 
-    private fun checkGoalAchievement(elapsedTime: Long) {
-        if (elapsedTime >= goalTime) {
-            // Write code to handle goal achievement
-        } else {
-            // Increase the goal for the next day
-            val remainingTime = goalTime - elapsedTime
-            val nextDayGoal = goalTime + (remainingTime * 2)
-            // Write code to save the new goal for the next day
-        }
-    }
+//    private fun checkGoalAchievement(elapsedTime: Long) {
+//        if (elapsedTime >= goalTime) {
+//            // Write code to handle goal achievement
+//        } else {
+//            // Increase the goal for the next day
+//            val remainingTime = goalTime - elapsedTime
+//            val nextDayGoal = goalTime + (remainingTime * 2)
+//            // Write code to save the new goal for the next day
+//        }
+//    }
 
     private fun saveTime(elapsedTime: Long) {
         val sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -121,6 +146,15 @@ class MainActivity : AppCompatActivity() {
             }
         }, AUTOSAVE_INTERVAL.toLong())
     }
+
+    private fun forceEndOfDay() {
+        // Trigger the EndOfDayReceiver
+        val intent = Intent(this, EndOfDayReceiver::class.java)
+        sendBroadcast(intent)
+        Toast.makeText(this, "End of day triggered!", Toast.LENGTH_SHORT).show()
+
+    }
+
 }
 
 

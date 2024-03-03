@@ -13,10 +13,10 @@ class EndOfDayReceiver : BroadcastReceiver() {
     private val SAVED_TIME = "savedTime"
     override fun onReceive(context: Context?, intent: Intent?) {
         val savedTime = getSavedTime(context)
-        saveTime(context, getCurrentDate(), savedTime)
+        saveTimeAndDate(context, getCurrentDate(), savedTime)
     }
 
-    private fun saveTime(context: Context?, date: String, time: Long) {
+    private fun saveTimeAndDate(context: Context?, date: String, time: Long) {
         val sharedPreferences = context?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val editor = sharedPreferences?.edit()
         editor?.putLong(date, time)

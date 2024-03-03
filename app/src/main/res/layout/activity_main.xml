@@ -8,6 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
         android:text="@string/today_time"
         android:textSize="24sp" />
@@ -36,9 +37,9 @@
         android:id="@+id/forceEndOfDayButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Force End of Day"
         android:layout_below="@id/pauseButton"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="29dp"
+        android:text="Force End of Day" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dataRecyclerView"
