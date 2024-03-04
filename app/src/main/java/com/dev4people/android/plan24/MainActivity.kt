@@ -42,6 +42,10 @@ class MainActivity : AppCompatActivity() {
         forceEndOfDayButton = findViewById(R.id.forceEndOfDayButton)
         dataRecyclerView = findViewById(R.id.dataRecyclerView)
 
+        val savedTime = getSavedTime()
+        chronometer.base = SystemClock.elapsedRealtime() - savedTime
+        elapsedTime = savedTime
+
         startButton.setOnClickListener {
             startChronometer()
         }
@@ -104,6 +108,14 @@ class MainActivity : AppCompatActivity() {
 //            // Write code to save the new goal for the next day
 //        }
 //    }
+
+    override fun onStop() {
+        super.onStop()
+
+        // Save the elapsed time when the app is closing
+        val elapsedTime = SystemClock.elapsedRealtime() - chronometer.base
+        saveTime(elapsedTime)
+    }
 
     private fun saveTime(elapsedTime: Long) {
         val sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
